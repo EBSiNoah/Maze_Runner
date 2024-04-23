@@ -152,6 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01f3d5905b4df0c4dbaff12fc3ecace5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Maze: {fileID: 2101411462}
 --- !u!4 &591182596
 Transform:
   m_ObjectHideFlags: 0
@@ -342,7 +343,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!1001 &1110542962319303332
+--- !u!1001 &2101411461
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -399,3 +400,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0e8f3edebb7014b4b86f3c002add0222, type: 3}
+--- !u!114 &2101411462 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1110542963072531207, guid: 0e8f3edebb7014b4b86f3c002add0222, type: 3}
+  m_PrefabInstance: {fileID: 2101411461}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40114d71629309049a50c97c3e0fc557, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
