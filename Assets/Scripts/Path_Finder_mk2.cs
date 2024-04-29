@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Path_Finder : MonoBehaviour
+public class Path_Finder_mk2 : MonoBehaviour
 {
-    public Maze_Generator_mk2 Maze;
+    public Maze_Generator_mk3 Maze;
 
     int Binary_insert(List<List<int>> neighbors, List<int> current)
     {
@@ -12,10 +12,10 @@ public class Path_Finder : MonoBehaviour
         int ep = neighbors.Count - 1;
         int mid = 0;
 
-        while(sp<=ep)
+        while (sp <= ep)
         {
             mid = (sp + ep) / 2;
-            if(neighbors[mid][1]+neighbors[mid][2] > current[1]+current[2])
+            if (neighbors[mid][1] + neighbors[mid][2] > current[1] + current[2])
             {
                 ep = mid - 1;
             }
@@ -29,7 +29,7 @@ public class Path_Finder : MonoBehaviour
             }
         }
 
-        if(sp>ep)
+        if (sp > ep)
         {
             mid = sp;
         }
@@ -44,13 +44,13 @@ public class Path_Finder : MonoBehaviour
         int x = 0;
         int y = 0;
 
-        while(current[idx]!=',')
+        while (current[idx] != ',')
         {
             x = x * 10 + current[idx] - '0';
             idx++;
         }
         idx++;
-        while(idx<current.Length)
+        while (idx < current.Length)
         {
             y = y * 10 + current[idx] - '0';
             idx++;
@@ -60,7 +60,7 @@ public class Path_Finder : MonoBehaviour
         return output;
     }
 
-    List<List<int>> A_star_pathfind(int[,] input_map, int[] coordinate)
+    List<List<int>> A_star_pathfind(List<List<int>> input_map, int[] coordinate)
     {
         int sp_x = coordinate[0];
         int sp_y = coordinate[1];
@@ -76,13 +76,13 @@ public class Path_Finder : MonoBehaviour
         int h_cost = 0;
         List<List<int>> neighbors = new List<List<int>>();
         List<List<int>> route = new List<List<int>>();
-        List<int> col=new List<int>();
+        List<int> col = new List<int>();
         List<int> empty_col = new List<int>();
         List<int> convert_current = new List<int>();
         int[] restore = new int[8];
         string current;
         string next_current;
-        Dictionary<string, List<int>> info=new Dictionary<string, List<int>>();
+        Dictionary<string, List<int>> info = new Dictionary<string, List<int>>();
 
         //start point initialize
         col.Add(1);
@@ -93,12 +93,12 @@ public class Path_Finder : MonoBehaviour
         col.Add(ep_x);
         col.Add(ep_y);
         neighbors.Add(col);
-        current=sp_x+","+sp_y;
+        current = sp_x + "," + sp_y;
         info.Add(current, col);
         convert_current.Add(sp_x);
         convert_current.Add(sp_y);
 
-        while (convert_current[0]!=ep_x || convert_current[1]!=ep_y)//until arrive at goal
+        while (convert_current[0] != ep_x || convert_current[1] != ep_y)//until arrive at goal
         {
             restore[0] = convert_current[0] + 1;
             restore[1] = convert_current[1];
@@ -108,20 +108,21 @@ public class Path_Finder : MonoBehaviour
             restore[5] = convert_current[1] + 1;
             restore[6] = convert_current[0];
             restore[7] = convert_current[1] - 1;
-            
+
             idx = 0;
-            while(idx<8)//look for neighbors
+            while (idx < 8)//look for neighbors
             {
                 res_x = restore[idx];
-                res_y = restore[idx+1];
-                next_current = res_x+","+res_y;
-                Debug.Log(current);
-                Debug.Log(next_current);
+                res_y = restore[idx + 1];
+                next_current = res_x + "," + res_y;
+                //Debug.Log(current);
+                //Debug.Log(next_current);
 
                 //look for range in map size and visitable
-                if (((res_x >= 0 && res_x < input_map.Length) && (res_y >= 0 && res_y < input_map.Length)) && (input_map[res_x,res_y] != 1))
+                if (((res_x >= 0 && res_x < input_map.Count) && (res_y >= 0 && res_y < input_map.Count)) && (input_map[res_x][res_y] != 1))
                 {
-                    if(!info.TryGetValue(next_current, out empty_col))//if empty dictionary
+                    //Debug.Log(idx);
+                    if (!info.TryGetValue(next_current, out empty_col))//if empty dictionary
                     {
                         Debug.Log("it's empty");
                         col[0] = 0;
@@ -135,11 +136,11 @@ public class Path_Finder : MonoBehaviour
                         mid = Binary_insert(neighbors, col);
                         neighbors.Insert(mid, col);
                     }
-                    else if(/*info.TryGetValue(next_current, out empty_col)*/info[next_current]!=null && info[next_current][1]>info[current][1]+1 )//not empty and shorter way
+                    else if (/*info.TryGetValue(next_current, out empty_col)*/info[next_current] != null && info[next_current][1] > info[current][1] + 1)//not empty and shorter way
                     {
                         Debug.Log("it's not empty");
                         change_value_idx = 0;
-                        while(neighbors[change_value_idx][3]!=res_x || neighbors[change_value_idx][4]!=res_y)
+                        while (neighbors[change_value_idx][3] != res_x || neighbors[change_value_idx][4] != res_y)
                         {
                             change_value_idx++;
                         }
@@ -156,27 +157,27 @@ public class Path_Finder : MonoBehaviour
 
             //move current
             idx = 0;
-            while(idx<neighbors.Count)
+            while (idx < neighbors.Count)
             {
-                if(neighbors[idx][0]!=1)
+                if (neighbors[idx][0] != 1)
                 {
                     f_cost = neighbors[idx][1] + neighbors[idx][2];
                     break;
                 }
                 idx++;
             }
-            
+
             //no way arrive to goal
-            if(idx==neighbors.Count)
+            if (idx == neighbors.Count)
             {
                 return route;
             }
-            
+
             h_cost = neighbors[idx][2];
             next_node_idx = idx;
-            while(idx<neighbors.Count && neighbors[idx][1]+neighbors[idx][2]==f_cost)
+            while (idx < neighbors.Count && neighbors[idx][1] + neighbors[idx][2] == f_cost)
             {
-                if(neighbors[idx][2]<h_cost && neighbors[idx][0]==0)
+                if (neighbors[idx][2] < h_cost && neighbors[idx][0] == 0)
                 {
                     h_cost = neighbors[idx][2];
                     next_node_idx = idx;
@@ -184,24 +185,24 @@ public class Path_Finder : MonoBehaviour
                 idx++;
             }
 
-            current = neighbors[next_node_idx][3]+","+neighbors[next_node_idx][4];
+            current = neighbors[next_node_idx][3] + "," + neighbors[next_node_idx][4];
             convert_current = StrConvert(current);
             neighbors[next_node_idx][0] = 1;
             info[current][0] = 1;
             Debug.Log("next");
         }
-        
+
         //route
         route.Insert(0, convert_current);
-        while(convert_current[0]!=sp_x || convert_current[1]!=sp_y)
+        while (convert_current[0] != sp_x || convert_current[1] != sp_y)
         {
             res_x = info[current][5];
             res_y = info[current][6];
-            current = res_x+","+ res_y;
+            current = res_x + "," + res_y;
             convert_current = StrConvert(current);
             route.Insert(0, convert_current);
         }
-        
+
         return route;
     }
 
@@ -209,7 +210,7 @@ public class Path_Finder : MonoBehaviour
     {
         int row_idx = 0;
         int col_idx = 0;
-        int[,] Binary_Cell = new int[65, 65];
+        List<List<int>> Binary_Cell = new List<List<int>>();
         List<List<int>> route = new List<List<int>>();
         int[] coordinate = new int[4];
         string restore;
@@ -219,24 +220,31 @@ public class Path_Finder : MonoBehaviour
         coordinate[2] = 63;
         coordinate[3] = 63;
 
-        while (row_idx<65)
+        while(row_idx<65)
+        {
+            Binary_Cell.Add(new List<int> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+            row_idx++;
+        }
+
+        row_idx = 0;
+        while(row_idx<Maze.binary_Cell.Count)
         {
             col_idx = 0;
-            while(col_idx<65)
+            while(col_idx< Maze.binary_Cell.Count)
             {
-                Binary_Cell[row_idx, col_idx] = Maze.binary_Cell[row_idx, col_idx];
-                //Debug.Log(Binary_Cell[row_idx, col_idx]);
+                Binary_Cell[row_idx][col_idx] = Maze.binary_Cell[row_idx][col_idx];
                 col_idx++;
             }
             row_idx++;
         }
 
+        Debug.Log(Maze.binary_Cell[0][0]);
         route = A_star_pathfind(Binary_Cell, coordinate);
-        
+
         row_idx = 0;
-        while(row_idx<route.Count)
+        while (row_idx < route.Count)
         {
-            restore=route[row_idx][0].ToString() +", "+route[row_idx][1].ToString();
+            restore = route[row_idx][0].ToString() + ", " + route[row_idx][1].ToString();
             Debug.Log(restore);
             row_idx++;
         }
