@@ -45,4 +45,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ground: {fileID: 4337705520240945943, guid: 895cbfb2d135ac248a49618f84fe9805, type: 3}
   wall: {fileID: 561847038697038849, guid: b448c9ccbbcec194c9fe83373b52fe84, type: 3}
+  route_obj: {fileID: 6645545029638719421, guid: 6c1eb08cbcbf298478a767fe9777447f, type: 3}
   coordinate: {fileID: 4074356671347991901}
+  robot: {fileID: 7986008831372630678, guid: 2108a431616ae6547b44d5e2d398b602, type: 3}
+  robot_speed: 10

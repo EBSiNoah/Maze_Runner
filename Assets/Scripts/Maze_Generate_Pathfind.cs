@@ -9,8 +9,12 @@ public class Maze_Generate_Pathfind : MonoBehaviour
     public GameObject route_obj;
     public Transform coordinate;
     public List<List<int>> binary_Cell = new List<List<int>>();
+    public GameObject robot;
+    public float robot_speed;
+    private List<List<int>> route;
+    private int route_idx;
+    //private float draw_idx;
 
-    // Start is called before the first frame update
     List<List<int>> MazeMaker()
     {
         int row = 1;
@@ -42,10 +46,10 @@ public class Maze_Generate_Pathfind : MonoBehaviour
         binary_Cell[2][1] = 1;
         binary_Cell[2][2] = 1;
 
-        while (cnt < 64)
+        while (cnt < 64)//Tessellation algorithm
         {
             row = 0;
-            while (row <= cnt)
+            while (row <= cnt)//copy to right
             {
                 col = 1;
                 while (col <= cnt)
@@ -57,7 +61,7 @@ public class Maze_Generate_Pathfind : MonoBehaviour
             }
 
             row = 1;
-            while (row <= cnt)
+            while (row <= cnt)//copy to down
             {
                 col = 0;
                 while (col <= cnt)
@@ -69,7 +73,7 @@ public class Maze_Generate_Pathfind : MonoBehaviour
             }
 
             row = 1;
-            while (row <= cnt)
+            while (row <= cnt)//copy to diagonal
             {
                 col = 1;
                 while (col <= cnt)
@@ -80,6 +84,7 @@ public class Maze_Generate_Pathfind : MonoBehaviour
                 row++;
             }
 
+            //make hole inside 3 points
             horizontal_rand = (int)Random.Range(1, 2 * cnt);
             vertical_rand = (int)Random.Range(1, 2 * cnt);
 
@@ -94,7 +99,7 @@ public class Maze_Generate_Pathfind : MonoBehaviour
             binary_Cell[horizontal_rand][cnt] = 0;
             binary_Cell[cnt][vertical_rand] = 0;
 
-            if (boolean_rand == 1)
+            if (boolean_rand == 1)//additional horizontal hole
             {
                 if (horizontal_rand > cnt)
                 {
@@ -115,7 +120,7 @@ public class Maze_Generate_Pathfind : MonoBehaviour
                 binary_Cell[restore_rand][cnt] = 0;
                 boolean_rand = 0;
             }
-            else
+            else//additional vertical hole
             {
                 if (vertical_rand > cnt)
                 {
@@ -232,7 +237,7 @@ public class Maze_Generate_Pathfind : MonoBehaviour
         int f_cost = 0;
         int h_cost = 0;
         List<List<int>> neighbors = new List<List<int>>();
-        List<List<int>> route = new List<List<int>>();
+        List<List<int>> result_route = new List<List<int>>();
         List<int> col = new List<int>();
         List<int> empty_col = new List<int>();
         List<int> convert_current = new List<int>();
@@ -241,7 +246,7 @@ public class Maze_Generate_Pathfind : MonoBehaviour
         string next_current;
         Dictionary<string, List<int>> info = new Dictionary<string, List<int>>();
 
-        Vector3 temp;
+        //Vector3 temp;
 
         //start point initialize
         col.Add(1);
@@ -329,7 +334,7 @@ public class Maze_Generate_Pathfind : MonoBehaviour
             //no way arrive to goal
             if (idx == neighbors.Count)
             {
-                return route;
+                return result_route;
             }
 
             h_cost = neighbors[idx][2];
@@ -352,43 +357,75 @@ public class Maze_Generate_Pathfind : MonoBehaviour
         }
 
         //route
-        route.Insert(0, convert_current);
+        result_route.Insert(0, convert_current);
         while (convert_current[0] != sp_x || convert_current[1] != sp_y)
         {
             res_x = info[current][5];
             res_y = info[current][6];
             current = res_x + "," + res_y;
             convert_current = StrConvert(current);
-            route.Insert(0, convert_current);
-            temp = new Vector3((32 - res_x % 65) * 0.5f, 0, (32 - res_y % 65) * 0.5f);
-            Instantiate(route_obj, coordinate.position + temp, coordinate.rotation);
+            result_route.Insert(0, convert_current);
         }
 
-        return route;
+        return result_route;
     }
 
     void Start()
     {
-        int row_idx = 0;
-        List<List<int>> route = new List<List<int>>();
-        int[] coordinate = new int[4];
-        string restore;
+        int[] input_coordinate = new int[4];
+        route_idx = 0;
+        //draw_idx = 0;
 
-        coordinate[0] = 1;
-        coordinate[1] = 1;
-        coordinate[2] = 63;
-        coordinate[3] = 63;
+        input_coordinate[0] = 1;
+        input_coordinate[1] = 1;
+        input_coordinate[2] = 63;
+        input_coordinate[3] = 63;
 
         binary_Cell = MazeMaker();
-        
-        route = A_star_pathfind(binary_Cell, coordinate);
-        //Debug.Log(route.Count);
-        row_idx = 0;
-        while (row_idx < route.Count)
+
+        route = A_star_pathfind(binary_Cell, input_coordinate);
+    }
+
+    void Update()
+    {
+        Vector3 temp;
+        if(route_idx<route.Count)
         {
-            restore = route[row_idx][0].ToString() + ", " + route[row_idx][1].ToString();
-            Debug.Log(restore);
-            row_idx++;
+            if(Mathf.Round((32 - route[route_idx][0] % 65) * 0.5f * 10) > Mathf.Round(robot.transform.position.x*10))//go left
+            {
+                temp = new Vector3(0.2f, 0, 0);
+                robot.transform.position += temp * Time.deltaTime * robot_speed;
+            }
+            else if(Mathf.Round((32 - route[route_idx][0] % 65) * 0.5f * 10) < Mathf.Round(robot.transform.position.x * 10))//go right
+            {
+                temp = new Vector3(-0.2f, 0, 0);
+                robot.transform.position += temp * Time.deltaTime * robot_speed;
+            }
+            else if(Mathf.Round((32 - route[route_idx][1] % 65) * 0.5f * 10) > Mathf.Round(robot.transform.position.z * 10))//go up
+            {
+                temp = new Vector3(0, 0, 0.2f);
+                robot.transform.position += temp * Time.deltaTime * robot_speed;
+            }
+            else if(Mathf.Round((32 - route[route_idx][1] % 65) * 0.5f * 10) < Mathf.Round(robot.transform.position.z * 10))//go down
+            {
+                temp = new Vector3(0, 0, -0.2f);
+                robot.transform.position += temp * Time.deltaTime * robot_speed;
+            }
+            else
+            {
+                route_idx++;
+                //Debug.Log(route_idx);
+            }
+        }/*
+        if(draw_idx>=route_idx && route_idx<route.Count)
+        {
+            temp = new Vector3((32 - route[route_idx][0] % 65) * 0.5f, 0, (32 - route[route_idx][1] % 65) * 0.5f);
+            Instantiate(route_obj, coordinate.position + temp, coordinate.rotation);
+            route_idx++;
         }
+        else if(draw_idx<route_idx && route_idx<route.Count)
+        {
+            draw_idx += Time.deltaTime * robot_speed;
+        }*/
     }
 }
