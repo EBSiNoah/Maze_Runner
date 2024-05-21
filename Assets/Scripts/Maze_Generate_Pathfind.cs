@@ -384,6 +384,7 @@ public class Maze_Generate_Pathfind : MonoBehaviour
         binary_Cell = MazeMaker();
 
         route = A_star_pathfind(binary_Cell, input_coordinate);
+
     }
 
     void Update()
